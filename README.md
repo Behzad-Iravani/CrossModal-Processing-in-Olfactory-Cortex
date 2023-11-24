@@ -1,0 +1,2 @@
+# CrossModal-Processing-in-Olfactory-Cortex
+ We explored the dynamic functional connectivity between the posterior piriform cortex (PPC) and visual/auditory object processing areas.  We investigate the relevance of object-related information in the olfactory system. Our code utilizes BOLD activity from 272 ROIs, applying t-tests to generate group-level t-maps and identifying the strongest connections. Explore the shortest path between auditory/visual areas and PPC
