@@ -17,7 +17,7 @@ clear; clc; % clear memormy
 % The preprocessing and denosing of the MRI data were carried out with CONN toolbox 22.a
 % The denoised time-series from 272 ROIs were extracted for dynamic
 % functional connectivity analysis 
-
+ 
 % condition 0: intercept
 % condition 1: pics
 % condition 2: sounds
@@ -25,32 +25,33 @@ clear; clc; % clear memormy
 %-------------------------------------------------------------------------
 clear all
 clear  dFC
-
+% reading the atlas 272
 atlas_v = spm_vol('D:\SC09newData\atlas\P272.img');
 [a.y, a.xyz] = spm_read_vols(atlas_v);
 % retrive centroids
 for j = 1:272
   ind = find(a.y == j);
-  XYZ(:,j) = median(a.xyz(:, ind), 2); % centroids
-  XYZa(:,j) = unique(a.y(a.y == j)); % centroids
+  XYZ(:,j) = median(a.xyz(:, ind), 2); % centroids cooridinates 
+  XYZa(:,j) = unique(a.y(a.y == j)); % centroids labels
 end
 %% estimate the dynamic functional connectivity
-for isub = 1:47
-    for icond = 1:2
-        load(['data\' sprintf('ROI_Subject%03d_Condition%03d.mat', isub, icond)], 'data', 'names', 'conditionweights')
-        FC = dyfc(cat(2,data{:,4:281}), names(:,4:281), conditionweights{1});
-        FC = FC.connectivity();
-       if icond == 1
+for isub = 1:47 % loop over the individuals 
+    for icond = 1:2 % loop over conditions 
+        load(['data\' sprintf('ROI_Subject%03d_Condition%03d.mat', isub, icond)], 'data', 'names', 'conditionweights') % loading TCs data  
+        FC = dyfc(cat(2,data{:,4:281}), names(:,4:281), conditionweights{1}); % constructing the FC object, ROIs' data: 4:281 are the actuall TCs, the rest is covariables of no interest 
+        FC = FC.connectivity(); % calling the connectivity method to computed the dynamic functional connectivity 
+       if icond == 1 % condition counter: cond1: pictures: cond 2: sounds
            dFC.pic{isub} = FC;
        else
            dFC.snd{isub} = FC;
        end
     end % for icond
 end % for isub
-save results\dFC.mat dFC
+save results\dFC.mat dFC % save dfc results 
 %% load Gray Matter data
 load gm.mat
 gm = mean(cat(1,gm{:}));
+gm = gm(XYZ(1,:)<0);
 %% TCs
 plot(5*dFC.pic{7}.TC(:,1:10:end) + repmat(1:10:size(dFC.pic{7}.TC,2), size(dFC.pic{7}.TC,1), 1));
 axis off
@@ -115,29 +116,38 @@ imagesc(tval.snds.*~eye(size(tval.snds, 1,2)))
 axis square off
 title('\rm Sounds')
 clim([0,30])
-colormap("turbo")
+colormap([ones(1,3);turbo(32)])
 axis off% sgtitle('\rm dFC t-values')
 print Figures\resources\BetaMAP.svg -vector -dsvg
 
-% remove those with low gray (40%) matter prob
-tval.pics(gm<=.4, :) = 0;
-tval.pics(:, gm<=.4) = 0;
-tval.snds(gm<=.4,:) = 0;
-tval.snds(:, gm<=.4) = 0;
 
-subplot(121)
-imagesc(tval.pics.*~eye(size(tval.pics, 1,2)))
+ax1 = subplot(121)
+im = imagesc(tval.pics.*~eye(size(tval.pics, 1,2)));
 clim([0,30])
-axis square
+axis square off
+
+% remove those with low gray (40%) matter prob
+map = ones(size(tval.pics));
+map([gm<.4, logical([1 1 1 0 0 0])],:) = .25; % gm + user defind ROIs
+map(:, [gm<.4, logical([1 1 1 0 0 0])]) = .25; % gm + user defind ROIs
+im.AlphaData = map;
+
 title('\rm Pictures')
-subplot(122)
-imagesc(tval.snds.*~eye(size(tval.snds, 1,2)))
-axis square
+ax2 = subplot(122)
+im = imagesc(tval.snds.*~eye(size(tval.snds, 1,2)));
+im.AlphaData = map;
+axis square off
 title('\rm Sounds')
 clim([0,30])
-sgtitle('\rm dFC group level t-stattistics')
+sgtitle('\rm dFC thresholded connectivity matrix (group level t-stattistics)')
+colormap(viridis_white(32))
+cb = colorbar();
+ax2.Position(1) =ax2.Position(1)-.05;
+ax2.Position(3:4) =ax1.Position(3:4);
+ylabel(cb, 't-value');
+cb.FontSize = 12;
 
-print -dsvg -vector results\secondlevel.svg 
+print -dsvg -vector Figures\resources\secondlevel.svg 
 %% Network science analysis 
 addpath('C:\MatlabToolboxes\BCT\2019_03_03_BCT')
 tmpa = XYZa(:, XYZ(1,:)>0);
@@ -170,4 +180,4 @@ end
 outvol.fname = 'results\output.nii';
 spm_write_vol(outvol, out)
 
-
+% $ END
