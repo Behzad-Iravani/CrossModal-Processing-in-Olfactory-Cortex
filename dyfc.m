@@ -1,24 +1,24 @@
 % -*- UTF-8 -*-
-% The dyfc class conatains the data and method for peroforming sliding
+% The dyfc class contains the data and method for performing sliding
 % window dynamic functional analysis
 % Copyright (C) Behzad Iravani
 % behzadiravani@gmail.com
 % 
-% Department of Neurology and Neurological sciences, Stanford University, Palo Alto 
+% Department of Neurology and Neurological Sciences, Stanford University, Palo Alto 
 % 
 % November, 2023 -- Philadelphia
 % -------------------------------------------------------------------------
 classdef dyfc
 
     properties
-            TC                     % a vector of the fMRI time-coouse
-            cW                     % conidtion weights 
+            TC                     % a vector of the fMRI time-course
+            cW                     % condition weights 
             names                  % ROI names
             wTC                    % Windowed TC
             dfc                    % dynamic functional connectivity
             beta                   % beta values first level analysis 
-            WinSize (1,1) double   % an integer determining the size of sliding window 
-            Overlap (1,1) double   % a percentage of overlaping windows
+            WinSize (1,1) double   % an integer determining the size of the sliding window 
+            Overlap (1,1) double   % the percentage of overlapping windows
     end
 
     methods
