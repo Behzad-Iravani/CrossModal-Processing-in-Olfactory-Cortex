@@ -1,20 +1,20 @@
 % -*- UTF-8 -*-
-% This script perform dynamic functional connnectivty  
+% This script performs dynamic functional connectivity  
 % and network science analysis and is part of the analysis for
 % "Whither unisensory olfactory cortex:
-% processing of visual and auditory stimuli in olfactory cortex,
+% processing of visual and auditory stimuli in the olfactory cortex,
 % independently of odor associations"  
 %
 % Copyright (C) Behzad Iravani
 % behzadiravani@gmail.com
 % 
-% Department of Neurology and Neurological sciences, Stanford University, Palo Alto 
+% Department of Neurology and Neurological Sciences, Stanford University, Palo Alto 
 % 
 % November, 2023 -- Philadelphia
 % ------------------------------------------------------------------------
 
-clear; clc; % clear memormy
-% The preprocessing and denosing of the MRI data were carried out with CONN toolbox 22.a
+clear; clc; % clear memory
+% The preprocessing and denoising of the MRI data were carried out with CONN toolbox 22.a
 % The denoised time-series from 272 ROIs were extracted for dynamic
 % functional connectivity analysis 
  
@@ -28,17 +28,17 @@ clear  dFC
 % reading the atlas 272
 atlas_v = spm_vol('D:\SC09newData\atlas\P272.img');
 [a.y, a.xyz] = spm_read_vols(atlas_v);
-% retrive centroids
+% retrieve centroids
 for j = 1:272
   ind = find(a.y == j);
-  XYZ(:,j) = median(a.xyz(:, ind), 2); % centroids cooridinates 
+  XYZ(:,j) = median(a.xyz(:, ind), 2); % centroids coordinates 
   XYZa(:,j) = unique(a.y(a.y == j)); % centroids labels
 end
 %% estimate the dynamic functional connectivity
 for isub = 1:47 % loop over the individuals 
     for icond = 1:2 % loop over conditions 
         load(['data\' sprintf('ROI_Subject%03d_Condition%03d.mat', isub, icond)], 'data', 'names', 'conditionweights') % loading TCs data  
-        FC = dyfc(cat(2,data{:,4:281}), names(:,4:281), conditionweights{1}); % constructing the FC object, ROIs' data: 4:281 are the actuall TCs, the rest is covariables of no interest 
+        FC = dyfc(cat(2,data{:,4:281}), names(:,4:281), conditionweights{1}); % constructing the FC object, ROIs' data: 4:281 are the actual TCs, the rest is covariables of no interest 
         FC = FC.connectivity(); % calling the connectivity method to computed the dynamic functional connectivity 
        if icond == 1 % condition counter: cond1: pictures: cond 2: sounds
            dFC.pic{isub} = FC;
@@ -139,7 +139,7 @@ im.AlphaData = map;
 axis square off
 title('\rm Sounds')
 clim([0,30])
-sgtitle('\rm dFC thresholded connectivity matrix (group level t-stattistics)')
+sgtitle('\rm dFC thresholded connectivity matrix (group level t-statistics)')
 colormap(viridis_white(32))
 cb = colorbar();
 ax2.Position(1) =ax2.Position(1)-.05;
